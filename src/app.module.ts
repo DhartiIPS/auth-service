@@ -4,10 +4,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { AuthController } from './auth-service/auth.controller'; // ✅ Import AuthController
-import { AuthServiceService } from './auth-service/auth-service.service';
-import { GoogleAuthService } from './auth-service/google-auth.service'; // ✅ If you have this
-import { JwtAuthGuard } from './auth-service/jwt-auth.guard'; // ✅ If you have this
+import { AuthModule } from './auth-service/auth.module';
 import { User } from './entities/user.entity';
 import { Appointment } from './entities/appointment.entity';
 import { AppointmentHistory } from './entities/appointment-history.entity';
@@ -36,10 +33,10 @@ import { EmailService } from './email/email.service';
         Notification,
       ],
       synchronize: false,
-      logging: true,
+      logging: false,
     }),
 
-    TypeOrmModule.forFeature([User]), // ✅ Add other entities if needed
+    TypeOrmModule.forFeature([User]),
 
     JwtModule.registerAsync({
       imports: [ConfigModule],
@@ -51,17 +48,15 @@ import { EmailService } from './email/email.service';
       }),
       inject: [ConfigService],
     }),
+
+    AuthModule,
   ],
   controllers: [
-    AppController, 
-    AuthController, // ✅ Add AuthController here
+    AppController,
   ],
   providers: [
     AppService, 
-    AuthServiceService, 
     EmailService,
-    GoogleAuthService, // ✅ Add if you have Google OAuth
-    JwtAuthGuard, // ✅ Add if you have JWT guard
   ],
 })
 export class AppModule {}

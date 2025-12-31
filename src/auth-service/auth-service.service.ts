@@ -5,7 +5,6 @@ import * as crypto from 'crypto';
 import { Repository } from 'typeorm';
 import { User } from '../entities/user.entity';
 import { Role } from '../enums/role.enum';
-// import { OAuthProvider } from '../enums/oauth-provider.enum';
 import { EmailService } from 'src/email/email.service';
 import { ForgotPasswordDto, LoginDto, RegisterDto, ResetPasswordDto, UpdateProfileDto } from '../dto/auth.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -13,7 +12,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 @Injectable()
 export class AuthServiceService {
     constructor(
-    @InjectRepository(User) // ✅ THIS IS REQUIRED
+    @InjectRepository(User)
     private readonly userRepository: Repository<User>,
     private readonly jwtService: JwtService,
     private readonly emailService: EmailService,
@@ -318,5 +317,48 @@ export class AuthServiceService {
         profile_picture: updatedUser.profile_picture,
       },
     };
+  }
+
+  async validateToken(token: string) {
+    try {
+      const decoded = this.jwtService.verify(token);
+      return {
+        valid: true,
+        decoded,
+      };
+    } catch (error) {
+      throw new HttpException('Invalid token', HttpStatus.UNAUTHORIZED);
+    }
+  }
+
+  async refreshToken(refreshToken: string) {
+    try {
+      const decoded = this.jwtService.verify(refreshToken);
+      const user = await this.userRepository.findOne({
+        where: { user_id: decoded.sub },
+      });
+
+      if (!user) {
+        throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+      }
+
+      const payload = {
+        sub: user.user_id,
+        email: user.email,
+        role: user.role,
+        full_name: user.full_name,
+      };
+
+      const newToken = this.jwtService.sign(payload);
+
+      return {
+        access_token: newToken,
+        user_id: user.user_id,
+        email: user.email,
+        role: user.role,
+      };
+    } catch (error) {
+      throw new HttpException('Invalid refresh token', HttpStatus.UNAUTHORIZED);
+    }
   }
 }
