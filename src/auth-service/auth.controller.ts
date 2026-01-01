@@ -23,8 +23,7 @@ export class AuthController {
   private readonly logger = new Logger(AuthController.name);
 
   constructor(private readonly authService: AuthServiceService) {}
-
-  /* ================= AUTHENTICATION ================= */
+ 
   
   @MessagePattern({ cmd: 'register' })
   async register(@Payload() dto: RegisterDto) {
@@ -149,8 +148,6 @@ export class AuthController {
       });
     }
   }
-
-  /* ================= PASSWORD ================= */
   
   @MessagePattern({ cmd: 'forgot_password' })
   async forgotPassword(@Payload() dto: ForgotPasswordDto) {
@@ -193,8 +190,6 @@ export class AuthController {
       });
     }
   }
-
-  /* ================= PROFILE ================= */
   
   @MessagePattern({ cmd: 'get_profile' })
   async getProfile(@Payload() payload: { userId: number | string }) {
@@ -246,11 +241,6 @@ export class AuthController {
     }
   }
 
-  /**
-   * ⚠️ IMPORTANT:
-   * Files are sent as base64 encoded buffers over TCP.
-   * For production, consider using S3/Cloudinary and sending URLs instead.
-   */
   @MessagePattern({ cmd: 'upload_profile_photo' })
   async uploadProfilePhoto(
     @Payload()
@@ -265,7 +255,6 @@ export class AuthController {
   ) {
     this.logger.log(`📸 Upload profile photo request for user: ${payload.userId}`);
     try {
-      // Convert buffer back to file-like object if needed
       const file: Express.Multer.File = {
         buffer: Buffer.from(payload.file.buffer),
         mimetype: payload.file.mimetype,
@@ -296,7 +285,6 @@ export class AuthController {
     }
   }
 
-  /* ================= GOOGLE AUTH ================= */
   
   @MessagePattern({ cmd: 'validate_google_user' })
   async validateGoogleUser(
