@@ -192,7 +192,6 @@ async register(@Payload() dto: RegisterDto) {
   @MessagePattern({ cmd: 'get_profile' })
   async getProfile(@Payload() payload: { userId: number | string }) {
     const userId = Number(payload.userId);
-    this.logger.log(`👤 Get profile request for user: ${userId}`);
     try {
       const result = await this.authService.getProfile(userId);
       this.logger.log(`  Profile retrieved for user: ${userId}`);
@@ -251,7 +250,6 @@ async register(@Payload() dto: RegisterDto) {
       };
     },
   ) {
-    this.logger.log(`📸 Upload profile photo request for user: ${payload.userId}`);
     try {
       const file: Express.Multer.File = {
         buffer: Buffer.from(payload.file.buffer),

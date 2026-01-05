@@ -11,71 +11,67 @@ import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class AuthServiceService {
-    constructor(
+  constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
     private readonly jwtService: JwtService,
     private readonly emailService: EmailService,
-  ) {}
+  ) { }
 
   async register(dto: RegisterDto) {
-  // 1️⃣ Check if user already exists
-  const existingUser = await this.userRepository.findOne({
-    where: { email: dto.email },
-  });
+    const existingUser = await this.userRepository.findOne({
+      where: { email: dto.email },
+    });
 
-  if (existingUser) {
-    throw new HttpException(
-      'User with this email already exists',
-      HttpStatus.CONFLICT,
-    );
-  }
+    if (existingUser) {
+      throw new HttpException(
+        'User with this email already exists',
+        HttpStatus.CONFLICT,
+      );
+    }
+    const hashedPassword = await bcrypt.hash(dto.password, 10);
 
-  // 2️⃣ Hash password
-  const hashedPassword = await bcrypt.hash(dto.password, 10);
+    const baseUserData: Partial<User> = {
+      email: dto.email,
+      password: hashedPassword,
+      full_name: dto.full_name ?? 'User',
+      role: dto.role,
+      phone: dto.phone,
+      address: dto.address,
+      date_of_birth: dto.date_of_birth ? new Date(dto.date_of_birth) : undefined,
+    };
 
-  // 3️⃣ Base user data
-  const baseUserData: Partial<User> = {
-    email: dto.email,
-    password: hashedPassword,
-    full_name: dto.full_name ?? 'User',
-    role: dto.role,
-    phone: dto.phone,
-    address: dto.address,
-    date_of_birth: dto.date_of_birth ? new Date(dto.date_of_birth) : undefined,
-  };
-
-  const roleSpecificData =
-    dto.role === Role.DOCTOR
-      ? {
+    const roleSpecificData =
+      dto.role === Role.DOCTOR
+        ? {
           education: dto.education,
           experience: dto.experience,
         }
-      : {
+        : {
           blood_group: dto.blood_group,
           age: dto.age,
           gender: dto.gender,
         };
 
-  const user = this.userRepository.create({
-    ...baseUserData,
-    ...roleSpecificData,
-  });
+    const user = this.userRepository.create({
+      ...baseUserData,
+      ...roleSpecificData,
+    });
 
-  const savedUser = await this.userRepository.save(user);
+    const savedUser = await this.userRepository.save(user);
 
-  await this.emailService.sendRegistrationEmail(
-    savedUser.email,
-    savedUser.full_name,
-    savedUser.user_id,
-    savedUser.role === Role.DOCTOR ? 'doctor' : 'patient',
-  );
+    await this.emailService.sendRegistrationEmail(
+      savedUser.email,
+      savedUser.full_name,
+      savedUser.user_id,
+      savedUser.role === Role.DOCTOR ? 'doctor' : 'patient',
+    );
 
-  return {
-    user_id: savedUser.user_id,
-    email: savedUser.email,
-  };
-}
+    return {
+      user_id: savedUser.user_id,
+      email: savedUser.email,
+    };
+  }
 
 
   async login(dto: LoginDto) {

@@ -9,20 +9,17 @@ async function createDatabase() {
     port: Number(process.env.DB_PORT || 5432),
     user: process.env.DB_USERNAME || 'postgres',
     password: process.env.DB_PASSWORD || 'postgres',
-    database: 'postgres', // Connect to default postgres database
+    database: 'postgres',
   });
 
   try {
     await client.connect();
-    
-    // Check if database exists
     const res = await client.query(
       `SELECT 1 FROM pg_database WHERE datname = $1`,
       [process.env.DB_NAME || 'user_doctor']
     );
 
     if (res.rowCount === 0) {
-      // Create database if it doesn't exist
       await client.query(`CREATE DATABASE ${process.env.DB_NAME || 'user_doctor'}`);
       console.log(`Database "${process.env.DB_NAME || 'user_doctor'}" created successfully!`);
     } else {
