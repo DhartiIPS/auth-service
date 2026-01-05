@@ -19,50 +19,64 @@ export class AuthServiceService {
   ) {}
 
   async register(dto: RegisterDto) {
-    const existingUser = await this.userRepository.findOne({
-      where: { email: dto.email },
-    });
+  // 1️⃣ Check if user already exists
+  const existingUser = await this.userRepository.findOne({
+    where: { email: dto.email },
+  });
 
-    if (existingUser) {
-      throw new HttpException(
-        'User with this email already exists',
-        HttpStatus.CONFLICT,
-      );
-    }
-
-    const hashedPassword = await bcrypt.hash(dto.password, 10);
-
-    const user = this.userRepository.create({
-      email: dto.email,
-      password: hashedPassword,
-      full_name: dto.full_name || 'User',
-      role: dto.role || Role.PATIENT,
-      phone: dto.phone,
-      date_of_birth: dto.date_of_birth ? new Date(dto.date_of_birth) : undefined,
-      blood_group: dto.role === Role.PATIENT ? dto.blood_group : undefined,
-      age: dto.age,
-      gender: dto.gender,
-      address: dto.address,
-      education: dto.role === Role.DOCTOR ? dto.education : undefined,
-      experience: dto.role === Role.DOCTOR ? dto.experience : undefined,
-    });
-
-    const savedUser = await this.userRepository.save(user);
-
-    // Send registration email via microservice
-    await this.emailService.sendRegistrationEmail(
-      savedUser.email,
-      savedUser.full_name,
-      savedUser.user_id,
-      savedUser.role === Role.DOCTOR ? 'doctor' : 'patient',
+  if (existingUser) {
+    throw new HttpException(
+      'User with this email already exists',
+      HttpStatus.CONFLICT,
     );
-
-
-    return {
-      user_id: savedUser.user_id,
-      email: savedUser.email,
-    };
   }
+
+  // 2️⃣ Hash password
+  const hashedPassword = await bcrypt.hash(dto.password, 10);
+
+  // 3️⃣ Base user data
+  const baseUserData: Partial<User> = {
+    email: dto.email,
+    password: hashedPassword,
+    full_name: dto.full_name ?? 'User',
+    role: dto.role,
+    phone: dto.phone,
+    address: dto.address,
+    date_of_birth: dto.date_of_birth ? new Date(dto.date_of_birth) : undefined,
+  };
+
+  const roleSpecificData =
+    dto.role === Role.DOCTOR
+      ? {
+          education: dto.education,
+          experience: dto.experience,
+        }
+      : {
+          blood_group: dto.blood_group,
+          age: dto.age,
+          gender: dto.gender,
+        };
+
+  const user = this.userRepository.create({
+    ...baseUserData,
+    ...roleSpecificData,
+  });
+
+  const savedUser = await this.userRepository.save(user);
+
+  await this.emailService.sendRegistrationEmail(
+    savedUser.email,
+    savedUser.full_name,
+    savedUser.user_id,
+    savedUser.role === Role.DOCTOR ? 'doctor' : 'patient',
+  );
+
+  return {
+    user_id: savedUser.user_id,
+    email: savedUser.email,
+  };
+}
+
 
   async login(dto: LoginDto) {
     const user = await this.userRepository.findOne({

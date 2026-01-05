@@ -10,7 +10,7 @@ import {
   UpdateProfileDto,
 } from '../dto/auth.dto';
 
-@Controller()
+@Controller('auth')
 @UsePipes(
   new ValidationPipe({
     whitelist: true,
@@ -25,26 +25,24 @@ export class AuthController {
   constructor(private readonly authService: AuthServiceService) {}
  
   
-  @MessagePattern({ cmd: 'register' })
-  async register(@Payload() dto: RegisterDto) {
-    this.logger.log(`📝 Register request for: ${dto.email}`);
-    try {
-      const result = await this.authService.register(dto);
-      this.logger.log(`  Registration successful for: ${dto.email}`);
-      return {
-        status: true,
-        data: result,
-        message: 'Registration successful',
-      };
-    } catch (error) {
-      this.logger.error(`Registration failed for ${dto.email}:`, error.message);
-      throw new RpcException({
-        status: false,
-        message: error.message || 'Registration failed',
-        statusCode: error.status || 500,
-      });
-    }
+ @MessagePattern({ cmd: 'register' })
+async register(@Payload() dto: RegisterDto) {
+  try {
+    const result = await this.authService.register(dto);
+    return {
+      status: true,
+      data: result,
+      message: 'Registration successful',
+    };
+  } catch (error) {
+    throw new RpcException({
+      status: false,
+      message: error.message,
+      statusCode: error.status || 500,
+    });
   }
+}
+
 
   @MessagePattern({ cmd: 'login' })
   async login(@Payload() dto: LoginDto) {
