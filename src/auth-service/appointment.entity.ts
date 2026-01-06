@@ -7,7 +7,6 @@ import {
   OneToMany,
 } from 'typeorm';
 import { AppointmentHistory } from './appointment-history.entity';
-import { Notification } from './notification.entity';
 
 export enum AppointmentStatus {
   SCHEDULED = 'scheduled',
@@ -48,7 +47,4 @@ export class Appointment {
 
   @OneToMany(() => AppointmentHistory, (history) => history.appointment)
   history: AppointmentHistory[];
-
-  @OneToMany(() => Notification, (notification) => notification.appointment)
-  notifications: Notification[];
 }

@@ -21,7 +21,7 @@
     "typeorm": "typeorm-ts-node-commonjs -d src/database/data-source.ts",
     "db:create": "ts-node src/database/create-database.ts",
     "db:seed": "ts-node src/database/seed.ts",
-    "migration:generate": "typeorm migration:generate -d src/database/data-source.ts",
+    "migration:generate": "typeorm-ts-node-commonjs migration:generate -d src/database/data-source.ts",
     "migration:run": "npm run typeorm -- migration:run",
     "migration:revert": "echo 'WARNING: This will revert the migration. Press Ctrl+C to cancel or wait 5 seconds...' && timeout /t 5 && npm run typeorm -- migration:revert",
     "migration:show": "npm run typeorm -- migration:show",

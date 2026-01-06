@@ -5,12 +5,8 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth-service/auth.module';
-import { User } from './entities/user.entity';
-import { Appointment } from './entities/appointment.entity';
-import { AppointmentHistory } from './entities/appointment-history.entity';
-import { DoctorAvailability } from './entities/doctor-availability.entity';
-import { Notification } from './entities/notification.entity';
 import { EmailService } from './email/email.service';
+import { User } from './users/user.entity';
 
 @Module({
   imports: [
@@ -24,13 +20,9 @@ import { EmailService } from './email/email.service';
       port: Number(process.env.DB_PORT || 5432),
       username: process.env.DB_USERNAME || 'postgres',
       password: process.env.DB_PASSWORD || 'postgres',
-      database: process.env.DB_NAME || 'user_doctor',
+      database: process.env.DB_NAME || 'microservice_db',
       entities: [
         User,
-        Appointment,
-        AppointmentHistory,
-        DoctorAvailability,
-        Notification,
       ],
       synchronize: false,
       logging: false,
@@ -48,7 +40,6 @@ import { EmailService } from './email/email.service';
       }),
       inject: [ConfigService],
     }),
-
     AuthModule,
   ],
   controllers: [

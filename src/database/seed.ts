@@ -1,7 +1,7 @@
 import * as bcrypt from 'bcryptjs';
 import { AppDataSource } from './data-source';
-import { User } from '../entities/user.entity';
 import { Role } from '../enums/role.enum';
+import { User } from 'src/users/user.entity';
 
 async function seedDatabase() {
   try {
