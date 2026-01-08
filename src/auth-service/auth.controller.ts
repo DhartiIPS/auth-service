@@ -22,26 +22,26 @@ import {
 export class AuthController {
   private readonly logger = new Logger(AuthController.name);
 
-  constructor(private readonly authService: AuthServiceService) {}
- 
-  
- @MessagePattern({ cmd: 'register' })
-async register(@Payload() dto: RegisterDto) {
-  try {
-    const result = await this.authService.register(dto);
-    return {
-      status: true,
-      data: result,
-      message: 'Registration successful',
-    };
-  } catch (error) {
-    throw new RpcException({
-      status: false,
-      message: error.message,
-      statusCode: error.status || 500,
-    });
+  constructor(private readonly authService: AuthServiceService) { }
+
+
+  @MessagePattern({ cmd: 'register' })
+  async register(@Payload() dto: RegisterDto) {
+    try {
+      const result = await this.authService.register(dto);
+      return {
+        status: true,
+        data: result,
+        message: 'Registration successful',
+      };
+    } catch (error) {
+      throw new RpcException({
+        status: false,
+        message: error.message,
+        statusCode: error.status || 500,
+      });
+    }
   }
-}
 
 
   @MessagePattern({ cmd: 'login' })
@@ -104,7 +104,7 @@ async register(@Payload() dto: RegisterDto) {
       });
     }
   }
-  
+
   @MessagePattern({ cmd: 'get_patients' })
   async getPatients() {
     this.logger.log('📋 Get all patients request');
@@ -146,7 +146,31 @@ async register(@Payload() dto: RegisterDto) {
       });
     }
   }
-  
+
+  @MessagePattern({ cmd: 'get_doctor_by_id' })
+  async getDoctorById(@Payload() id: number) {
+    this.logger.log(`Get doctor by id request: ${id}`);
+
+    try {
+      const result = await this.authService.getDoctorById(id);
+
+      this.logger.log(`Doctor retrieved successfully: ${id}`);
+      return {
+        status: true,
+        data: result,
+        message: 'Doctor retrieved successfully',
+      };
+    } catch (error) {
+      this.logger.error('Failed to get doctor:', error.message);
+
+      throw new RpcException({
+        status: false,
+        message: error.message || 'Failed to retrieve doctor',
+        statusCode: error.status || 500,
+      });
+    }
+  }
+
   @MessagePattern({ cmd: 'forgot_password' })
   async forgotPassword(@Payload() dto: ForgotPasswordDto) {
     this.logger.log(`🔑 Forgot password request for: ${dto.email}`);
@@ -188,7 +212,7 @@ async register(@Payload() dto: RegisterDto) {
       });
     }
   }
-  
+
   @MessagePattern({ cmd: 'get_profile' })
   async getProfile(@Payload() payload: { userId: number | string }) {
     const userId = Number(payload.userId);
@@ -264,7 +288,7 @@ async register(@Payload() dto: RegisterDto) {
         payload.userId,
         file,
       );
-      
+
       this.logger.log(`  Profile photo uploaded for user: ${payload.userId}`);
       return {
         status: true,
@@ -281,7 +305,7 @@ async register(@Payload() dto: RegisterDto) {
     }
   }
 
-  
+
   @MessagePattern({ cmd: 'validate_google_user' })
   async validateGoogleUser(
     @Payload()

@@ -299,6 +299,21 @@ export class AuthServiceService {
     return doctors.map(({ password, reset_token, reset_token_exp, ...doctor }) => doctor);
   }
 
+  async getDoctorById(id: number) {
+    const doctor = await this.userRepository.findOne({
+      where: {
+        user_id: id,
+        role: Role.DOCTOR,
+      },
+    });
+
+    if (!doctor) {
+      throw new Error('Doctor not found');
+    }
+    const { password, reset_token, reset_token_exp, ...doctorData } = doctor;
+    return doctorData;
+  }
+
   async uploadProfilePhoto(userId: number, file: Express.Multer.File) {
     const user = await this.userRepository.findOne({
       where: { user_id: userId },
