@@ -83,7 +83,7 @@ export class User {
 
   @OneToMany(
     () => DoctorAvailability,
-    (availability) => availability.doctor_id,
+    (availability) => availability.doctor,
   )
   availabilities: DoctorAvailability[];
 }

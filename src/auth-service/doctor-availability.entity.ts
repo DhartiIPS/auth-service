@@ -1,9 +1,12 @@
+import { User } from '../users/user.entity';
 import {
   Entity,
   PrimaryGeneratedColumn,
   Column,
   CreateDateColumn,
   UpdateDateColumn,
+  JoinColumn,
+  ManyToOne,
 } from 'typeorm';
 
 export enum DayOfWeek {
@@ -21,21 +24,18 @@ export class DoctorAvailability {
   @PrimaryGeneratedColumn()
   availability_id: number;
 
-  @Column()
-  doctor_id: number;
+  @ManyToOne(() => User, (user) => user.availabilities, {
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn({ name: 'doctor_id' })
+  doctor: User;
 
   @Column({ type: 'enum', enum: DayOfWeek })
   day_of_week: DayOfWeek;
 
-  @Column()
+  @Column({ type: 'time' })
   start_time: string;
 
-  @Column()
+  @Column({ type: 'time' })
   end_time: string;
-
-  @CreateDateColumn()
-  created_at: Date;
-
-  @UpdateDateColumn()
-  updated_at: Date;
 }
