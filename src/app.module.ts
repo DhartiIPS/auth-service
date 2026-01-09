@@ -7,6 +7,7 @@ import { AppService } from './app.service';
 import { AuthModule } from './auth-service/auth.module';
 import { EmailService } from './email/email.service';
 import { User } from './users/user.entity';
+import { DoctorAvailability } from './auth-service/doctor-availability.entity';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { User } from './users/user.entity';
       database: process.env.DB_NAME || 'microservice_db',
       entities: [
         User,
+        DoctorAvailability,
       ],
       synchronize: false,
       logging: false,

@@ -1,6 +1,7 @@
 import { DataSource } from 'typeorm';
 import * as dotenv from 'dotenv';
 import { User } from '../users/user.entity';
+import { DoctorAvailability } from '../auth-service/doctor-availability.entity';
 
 dotenv.config();
 
@@ -11,7 +12,7 @@ export const AppDataSource = new DataSource({
   username: process.env.DB_USERNAME || 'postgres',
   password: process.env.DB_PASSWORD || 'postgres',
   database: process.env.DB_NAME || 'microservice_db',
-  entities: [User],
+  entities: [User,DoctorAvailability],
   migrations: ['src/database/migrations/*{.ts,.js}'],
   synchronize: false,
   logging: true,

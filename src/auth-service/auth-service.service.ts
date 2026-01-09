@@ -39,6 +39,7 @@ export class AuthServiceService {
       phone: dto.phone,
       address: dto.address,
       date_of_birth: dto.date_of_birth ? new Date(dto.date_of_birth) : undefined,
+      availabilities: [],
     };
 
     const roleSpecificData =

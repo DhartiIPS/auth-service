@@ -4,8 +4,10 @@ import {
   Column,
   CreateDateColumn,
   UpdateDateColumn,
+  OneToMany,
 } from 'typeorm';
 import { Role } from '../enums/role.enum';
+import { DoctorAvailability } from '../auth-service/doctor-availability.entity';
 
 @Entity('users')
 export class User {
@@ -78,4 +80,10 @@ export class User {
 
   @UpdateDateColumn()
   updated_at: Date;
+
+  @OneToMany(
+    () => DoctorAvailability,
+    (availability) => availability.doctor_id,
+  )
+  availabilities: DoctorAvailability[];
 }
